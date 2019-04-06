@@ -145,10 +145,12 @@ namespace steam_i2c_16_servo {
     }
 
 	/*
-		This secret incantation sets up the PCA9865 I2C driver chip to be running at 50Hz pulse repetition, and then sets the 16 output registers to 1.5mS - centre travel.
-		It should not need to be called directly be a user - the first servo write will call it.
+		This Initialization sets all 64 Boards if they are online on the PCA9865 I2C driver chip to be running at 50Hz pulse repetition, 
+        and then sets the 16 output registers to 1.5mS - centre travel.
+		It should be called directly be a user on startup - This will block the unit operation for a few seconds, but the display will show the progress.
 	*/
-    function secretIncantation(): void {
+    //% block
+    export function Intialize(): void {
         let buf = pins.createBuffer(2)
 
         //Should probably do a soft reset of the I2C chip here when I figure out how
@@ -261,7 +263,7 @@ namespace steam_i2c_16_servo {
     //% block
     export function servoWrite(Board: Boards, Servo: Servos, degrees: number): void {
         if (initalised == false) {
-            secretIncantation()
+            Intialize()
         }
         let buf = pins.createBuffer(2)
         let HighByte = false
