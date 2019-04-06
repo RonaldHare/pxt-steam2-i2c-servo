@@ -154,8 +154,7 @@ namespace steam_i2c_16_servo {
         //Should probably do a soft reset of the I2C chip here when I figure out how
 
         //Loop all possible board values to make sure they are initialized if they exists
-        let i = 0x40
-        for (i = 0x40; i < 0x80; i++) {
+        for (let i = 0x40; i <= 0x7F; i++) {
             // First set the prescaler to 50 hz
             buf[0] = PrescaleReg
             buf[1] = 0x85
@@ -177,13 +176,80 @@ namespace steam_i2c_16_servo {
             buf[0] = Mode1Reg
             buf[1] = 0x01
             pins.i2cWriteBuffer(i, buf, false)
+            ProcessLoading(i)
         }
 
         //set the initalised flag so we dont come in here again automatically
         initalised = true
+        basic.showLeds(`
+                . # . # .
+                # . # . #
+                # . . . #
+                . # . # .
+                . . # . .
+                `)
     }
 
-
+    /*
+    * Show the leds for loading secret incantation
+    */
+    function ProcessLoading(Value:number){
+        Value = Value & 0x0F
+        if(Value == 0x00){
+            basic.showLeds(`
+                . . . . .
+                . . . . .
+                . . . . .
+                . . . . .
+                . . . . .
+            `)
+        }
+        if(Value == 0x01 || Value == 0x06 || Value == 0x0B){
+            basic.showLeds(`
+                # . . . .
+                . . . . .
+                . . . . .
+                . . . . .
+                . . . . .
+            `)
+        }
+        if(Value == 0x02 || Value == 0x07 || Value == 0x0C){
+            basic.showLeds(`
+                # # . . .
+                . . . . .
+                . . . . .
+                . . . . .
+                . . . . .
+            `)
+        }
+        if(Value == 0x03 || Value == 0x08 || Value == 0x0D){
+            basic.showLeds(`
+                # # # . .
+                . . . . .
+                . . . . .
+                . . . . .
+                . . . . .
+            `)
+        }
+        if(Value == 0x04 || Value == 0x09 || Value == 0x0E){
+            basic.showLeds(`
+                # # # # .
+                . . . . .
+                . . . . .
+                . . . . .
+                . . . . .
+            `)
+        }
+        if(Value == 0x05 || Value == 0x0A || Value == 0x0F){
+            basic.showLeds(`
+                # # # # #
+                . . . . .
+                . . . . .
+                . . . . .
+                . . . . .
+            `)
+        }
+    }
     /**
          * sets the requested servo to the reguested angle.
          * if the PCA has not yet been initialised calls the initialisation routine
