@@ -1,5 +1,5 @@
 {
-    "name": "pxt-steam2-i2c-servo",
+    "name": "pxt-stream2-i2c-servo",
     "version": "0.0.4",
     "description": "",
     "dependencies": {

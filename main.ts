@@ -2,7 +2,7 @@
  * Blocks for driving the 2 Steam I2C 16-Servo Driver Board this base code is from Kitroniks I2C 16 Servo, We have expanded it to allow the full board address expansion
  */
 //% weight=100 color=#00A654 icon="\uf085" block="I2C 16-Servo"
-namespace steam_i2c_16_servo {
+namespace stream2_i2c_16_servo {
 
     //Main Variables
     let PrescaleReg = 0xFE //the prescale register address
