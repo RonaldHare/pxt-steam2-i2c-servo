@@ -1,7 +1,7 @@
 {
     "name": "pxt-stream2-i2c-servo",
     "version": "0.0.4",
-    "description": "",
+    "description": "Blocks for driving the 2 Stream I2C Servo Addressable Boards",
     "dependencies": {
         "core": "*"
     },
