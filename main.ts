@@ -18,6 +18,8 @@ namespace stream2_i2c_16_servo {
 
     let initalised = false //a flag to allow us to initialise without explicitly calling the secret incantation
 
+    let intBoardCount = 1   // integer to hold the number of boards on the system improve the speed of the system initialize
+
     //nice big list of servos for the block to use. These represent register offsets in the PCA9865
     export enum Servos {
         Servo1 = 0x08,
@@ -148,37 +150,49 @@ namespace stream2_i2c_16_servo {
 		This Initialization sets all 64 Boards if they are online on the PCA9865 I2C driver chip to be running at 50Hz pulse repetition, 
         and then sets the 16 output registers to 1.5mS - centre travel.
 		It should be called directly be a user on startup - This will block the unit operation for a few seconds, but the display will show the progress.
+        * @param BoardCount Number of boards connected to the microbit
 	*/
     //% block
-    export function Intialize(): void {
+    export function Intialize(BoardCount: number): void {
         let buf = pins.createBuffer(2)
+
+        //Set the board count in the namespace
+        if (BoardCount >= 1 && BoardCount <= 64) {
+            intBoardCount = BoardCount
+        } else {
+            intBoardCount = 1
+        }
 
         //Should probably do a soft reset of the I2C chip here when I figure out how
 
         //Loop all possible board values to make sure they are initialized if they exists
-        for (let i = 0x40; i <= 0x7F; i++) {
+        for (let i = 1; i <= intBoardCount; i++) {
             // First set the prescaler to 50 hz
             buf[0] = PrescaleReg
             buf[1] = 0x85
-            pins.i2cWriteBuffer(i, buf, false)
+
+            //Set the board counter to address for matching
+            let boardAddress = i + 0x3F
+
+            pins.i2cWriteBuffer(boardAddress, buf, false)
             //Block write via the all leds register to set all of them to 90 degrees
             buf[0] = 0xFA
             buf[1] = 0x00
-            pins.i2cWriteBuffer(i, buf, false)
+            pins.i2cWriteBuffer(boardAddress, buf, false)
             buf[0] = 0xFB
             buf[1] = 0x00
-            pins.i2cWriteBuffer(i, buf, false)
+            pins.i2cWriteBuffer(boardAddress, buf, false)
             buf[0] = 0xFC
             buf[1] = 0x66
-            pins.i2cWriteBuffer(i, buf, false)
+            pins.i2cWriteBuffer(boardAddress, buf, false)
             buf[0] = 0xFD
             buf[1] = 0x00
-            pins.i2cWriteBuffer(i, buf, false)
+            pins.i2cWriteBuffer(boardAddress, buf, false)
             //Set the mode 1 register to come out of sleep
             buf[0] = Mode1Reg
             buf[1] = 0x01
-            pins.i2cWriteBuffer(i, buf, false)
-            ProcessLoading(i)
+            pins.i2cWriteBuffer(boardAddress, buf, false)
+            ProcessLoading(boardAddress)
         }
 
         //set the initalised flag so we dont come in here again automatically
@@ -195,9 +209,9 @@ namespace stream2_i2c_16_servo {
     /*
     * Show the leds for loading secret incantation
     */
-    function ProcessLoading(Value:number){
+    function ProcessLoading(Value: number) {
         Value = Value & 0x0F
-        if(Value == 0x00){
+        if (Value == 0x00) {
             basic.showLeds(`
                 . . . . .
                 . . . . .
@@ -206,7 +220,7 @@ namespace stream2_i2c_16_servo {
                 . . . . .
             `)
         }
-        if(Value == 0x01 || Value == 0x06 || Value == 0x0B){
+        if (Value == 0x01 || Value == 0x06 || Value == 0x0B) {
             basic.showLeds(`
                 # . . . .
                 . . . . .
@@ -215,7 +229,7 @@ namespace stream2_i2c_16_servo {
                 . . . . .
             `)
         }
-        if(Value == 0x02 || Value == 0x07 || Value == 0x0C){
+        if (Value == 0x02 || Value == 0x07 || Value == 0x0C) {
             basic.showLeds(`
                 # # . . .
                 . . . . .
@@ -224,7 +238,7 @@ namespace stream2_i2c_16_servo {
                 . . . . .
             `)
         }
-        if(Value == 0x03 || Value == 0x08 || Value == 0x0D){
+        if (Value == 0x03 || Value == 0x08 || Value == 0x0D) {
             basic.showLeds(`
                 # # # . .
                 . . . . .
@@ -233,7 +247,7 @@ namespace stream2_i2c_16_servo {
                 . . . . .
             `)
         }
-        if(Value == 0x04 || Value == 0x09 || Value == 0x0E){
+        if (Value == 0x04 || Value == 0x09 || Value == 0x0E) {
             basic.showLeds(`
                 # # # # .
                 . . . . .
@@ -242,7 +256,7 @@ namespace stream2_i2c_16_servo {
                 . . . . .
             `)
         }
-        if(Value == 0x05 || Value == 0x0A || Value == 0x0F){
+        if (Value == 0x05 || Value == 0x0A || Value == 0x0F) {
             basic.showLeds(`
                 # # # # #
                 . . . . .
@@ -263,7 +277,7 @@ namespace stream2_i2c_16_servo {
     //% block
     export function servoWrite(Board: Boards, Servo: Servos, degrees: number): void {
         if (initalised == false) {
-            Intialize()
+            Intialize(intBoardCount)
         }
         let buf = pins.createBuffer(2)
         let HighByte = false
