@@ -13,8 +13,8 @@ namespace stream2_i2c_16_servo {
     let ServoRegDistance = 4
 
     //To get the PWM pulses to the correct size and zero offset these are the default numbers. 
-    let ServoMultiplier = 113
-    let ServoZeroOffset = 0x66
+    let ServoMultiplier = 196
+    let ServoZeroOffset = 0x68
 
     let initalised = false //a flag to allow us to initialise without explicitly calling the secret incantation
 
@@ -110,12 +110,14 @@ namespace stream2_i2c_16_servo {
         Board64 = 0x7F,
     }
 
-    //Trim the servo pulses. These are here for advanced users, and not exposed to blocks.
-    //It appears that servos I've tested are actually expecting 0.5 - 2.5mS pulses, 
-    //not the widely reported 1-2mS 
-    //that equates to multiplier of 226, and offset of 0x66
-    // a better trim function that does the maths for the end user could be exposed, the basics are here 
-    // for reference
+    /* 
+        Trim the servo pulses. These are here for advanced users, and not exposed to blocks.
+        It appears that servos I've tested are actually expecting 0.5 - 2.5mS pulses, 
+        not the widely reported 1-2mS 
+        that equates to multiplier of 226, and offset of 0x66
+        a better trim function that does the maths for the end user could be exposed, the basics are here 
+        for reference
+    */
 
     export function TrimServoMultiplier(Value: number) {
         if (Value < 113) {
@@ -131,6 +133,11 @@ namespace stream2_i2c_16_servo {
 
         }
     }
+
+    /*
+        Servo Zero offset value
+    */
+
     export function TrimServoZeroOffset(Value: number) {
         if (Value < 0x66) {
             ServoZeroOffset = 0x66
